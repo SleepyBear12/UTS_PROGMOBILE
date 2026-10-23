@@ -1,0 +1,157 @@
+@AcademicApi_HostAddress = http://localhost:5080
+
+### ==== SKENARIO UJI (T01-T10) ====
+
+### T01 - POST dosen data valid => 201
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{
+  "nidn": "9990001199",
+  "namaDosen": "Dedi Hamdani, M.Kom.",
+  "email": "dedi.hamdani@univ.ac.id",
+  "prodi": "Sistem Informasi"
+}
+
+### T02 - POST dosen email tidak valid => 400
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{
+  "nidn": "9990001112",
+  "namaDosen": "Tes Email Gagal",
+  "email": "bukan-email",
+  "prodi": "Sistem Informasi"
+}
+
+### T03 - POST dosen NIDN duplikat => 409 (pakai NIDN seed 0012345678)
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{
+  "nidn": "0012345678",
+  "namaDosen": "Dosen Duplikat",
+  "email": "duplikat@univ.ac.id",
+  "prodi": "Sistem Informasi"
+}
+
+### T04 - POST mahasiswa dengan dosen wali valid => 201
+POST {{AcademicApi_HostAddress}}/api/mahasiswa
+Content-Type: application/json
+
+{
+  "nim": "2026000999",
+  "namaMahasiswa": "Gilang Saputra",
+  "email": "gilang.saputra@student.univ.ac.id",
+  "angkatan": 2026,
+  "dosenId": 1
+}
+
+### T05 - PUT mahasiswa ganti dosen wali => 204 lalu GET menampilkan dosen baru
+PUT {{AcademicApi_HostAddress}}/api/mahasiswa/6
+Content-Type: application/json
+
+{
+  "nim": "2026000999",
+  "namaMahasiswa": "Gilang Saputra",
+  "email": "gilang.saputra@student.univ.ac.id",
+  "angkatan": 2026,
+  "dosenId": 3
+}
+
+GET {{AcademicApi_HostAddress}}/api/mahasiswa/6
+Accept: application/json
+
+### T06 - DELETE mahasiswa => 204; GET by id => 404
+DELETE {{AcademicApi_HostAddress}}/api/mahasiswa/6
+
+GET {{AcademicApi_HostAddress}}/api/mahasiswa/6
+Accept: application/json
+
+### T07 - DELETE dosen yang masih jadi wali => 409
+DELETE {{AcademicApi_HostAddress}}/api/dosen/1
+
+### T08 - GET/PUT/DELETE ID tidak ada => 404
+GET {{AcademicApi_HostAddress}}/api/dosen/9999
+Accept: application/json
+
+PUT {{AcademicApi_HostAddress}}/api/dosen/9999
+Content-Type: application/json
+
+{
+  "nidn": "1111111111",
+  "namaDosen": "Nggak Ada",
+  "email": "x@univ.ac.id",
+  "prodi": "SI"
+}
+
+DELETE {{AcademicApi_HostAddress}}/api/mahasiswa/9999
+
+### T09 - Ke API yang tidak dapat dihubungi (uji jaringan)
+GET http://localhost:9999/api/dosen
+Accept: application/json
+
+### T10 - Angkatan di luar rentang => 400
+POST {{AcademicApi_HostAddress}}/api/mahasiswa
+Content-Type: application/json
+
+{
+  "nim": "2019000100",
+  "namaMahasiswa": "Angkatan Gagal",
+  "email": "gagal@student.univ.ac.id",
+  "angkatan": 2019,
+  "dosenId": 1
+}
+
+### T11 - NIM duplikat => 409
+POST {{AcademicApi_HostAddress}}/api/mahasiswa
+Content-Type: application/json
+
+{
+  "nim": "2022001001",
+  "namaMahasiswa": "Mahasiswa Duplikat",
+  "email": "duplikat@student.univ.ac.id",
+  "angkatan": 2022,
+  "dosenId": 1
+}
+
+### T12 - dosenId tidak ada => 400
+POST {{AcademicApi_HostAddress}}/api/mahasiswa
+Content-Type: application/json
+
+{
+  "nim": "2026000555",
+  "namaMahasiswa": "Dosen Tidak Ada",
+  "email": "nocash@student.univ.ac.id",
+  "angkatan": 2026,
+  "dosenId": 999
+}
+
+### T13 - Body JSON rusak => 400
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{ ini bukan json
+
+### T14 - String kosong / spasi saja => 400 (trim)
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{
+  "nidn": "   ",
+  "namaDosen": "   ",
+  "email": "   ",
+  "prodi": "   "
+}
+
+### Tambah dosen untuk uji DELETE yang legal
+POST {{AcademicApi_HostAddress}}/api/dosen
+Content-Type: application/json
+
+{
+  "nidn": "8880002222",
+  "namaDosen": "Hapus Bosan",
+  "email": "hapus.bosan@univ.ac.id",
+  "prodi": "Sistem Informasi"
+}
+
